@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 include(cmake/prelude.cmake)
 
 project(
-    m3
+    dest
     VERSION 0.1.0
     DESCRIPTION "Short description"
     HOMEPAGE_URL "https://example.com/"
@@ -16,33 +16,31 @@ include(cmake/variables.cmake)
 # ---- Declare library ----
 
 add_library(
-    m3_lib OBJECT
+    dest_lib OBJECT
     source/lib.cpp
 )
 
-add_subdirectory(
-  lib/sfml
-)
-
-
 target_include_directories(
-    m3_lib ${warning_guard}
+    dest_lib ${warning_guard}
     PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
 )
 
-target_compile_features(m3_lib PUBLIC cxx_std_17)
+target_compile_features(dest_lib PUBLIC cxx_std_17)
+
+find_package(fmt REQUIRED)
+target_link_libraries(dest_lib PRIVATE fmt::fmt)
 
 # ---- Declare executable ----
 
-add_executable(m3_exe source/main.cpp)
-add_executable(m3::exe ALIAS m3_exe)
+add_executable(dest_exe source/main.cpp)
+add_executable(dest::exe ALIAS dest_exe)
 
-set_property(TARGET m3_exe PROPERTY OUTPUT_NAME m3)
+set_property(TARGET dest_exe PROPERTY OUTPUT_NAME dest)
 
-target_compile_features(m3_exe PRIVATE cxx_std_17)
+target_compile_features(dest_exe PRIVATE cxx_std_17)
 
-target_link_libraries(m3_exe PRIVATE m3_lib)
+target_link_libraries(dest_exe PRIVATE dest_lib)
 
 # ---- Install rules ----
 
@@ -52,12 +50,12 @@ endif()
 
 # ---- Developer mode ----
 
-if(NOT m3_DEVELOPER_MODE)
+if(NOT dest_DEVELOPER_MODE)
   return()
 elseif(NOT PROJECT_IS_TOP_LEVEL)
   message(
       AUTHOR_WARNING
-      "Developer mode is intended for developers of m3"
+      "Developer mode is intended for developers of dest"
   )
 endif()
 

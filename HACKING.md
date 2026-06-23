@@ -9,7 +9,7 @@ guide.
 ## Developer mode
 
 Build system targets that are only useful for developers of this project are
-hidden if the `m3_DEVELOPER_MODE` option is disabled. Enabling this
+hidden if the `dest_DEVELOPER_MODE` option is disabled. Enabling this
 option makes tests and other developer targets and options available. Not
 enabling this option means that you are a consumer of this project and thus you
 have no need for these targets and options.
@@ -23,7 +23,7 @@ the project. As a developer, you are recommended to always have the [latest
 CMake version][2] installed to make use of the latest Quality-of-Life
 additions.
 
-You have a few options to pass `m3_DEVELOPER_MODE` to the configure
+You have a few options to pass `dest_DEVELOPER_MODE` to the configure
 command, but this project prefers to use presets.
 
 As a developer, you should create a `CMakeUserPresets.json` file at the root of
@@ -41,7 +41,7 @@ the project:
     {
       "name": "dev",
       "binaryDir": "${sourceDir}/build/dev",
-      "inherits": ["dev-mode", "ci-<os>"],
+      "inherits": ["dev-mode", "vcpkg", "ci-<os>"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -86,6 +86,17 @@ in the terminal.
 > Studio you have to set the option `Never run configure step automatically`
 > in `Tools > Options > CMake` **prior to opening the project**, after which
 > you can manually configure using `Project > Configure Cache`.
+
+### Dependency manager
+
+The above preset will make use of the [vcpkg][vcpkg] dependency manager. After
+installing it, make sure the `VCPKG_ROOT` environment variable is pointing at
+the directory where the vcpkg executable is. On Windows, you might also want
+to inherit from the `vcpkg-win64-static` preset, which will make vcpkg install
+the dependencies as static libraries. This is only necessary if you don't want
+to setup `PATH` to run tests.
+
+[vcpkg]: https://github.com/microsoft/vcpkg
 
 ### Configure, build and test
 
@@ -137,7 +148,7 @@ fix them respectively. Customization available using the `FORMAT_PATTERNS` and
 
 #### `run-exe`
 
-Runs the executable target `m3_exe`.
+Runs the executable target `dest_exe`.
 
 #### `spell-check` and `spell-fix`
 

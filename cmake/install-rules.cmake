@@ -1,6 +1,6 @@
 install(
-    TARGETS m3_exe
-    RUNTIME COMPONENT m3_Runtime
+    TARGETS dest_exe
+    RUNTIME COMPONENT dest_Runtime
 )
 
 if(PROJECT_IS_TOP_LEVEL)

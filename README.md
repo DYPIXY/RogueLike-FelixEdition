@@ -1,6 +1,6 @@
-# m3
+# dest
 
-This is the m3 project.
+This is the dest project.
 
 # Building and installing
 

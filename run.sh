@@ -1,6 +1,6 @@
 #!/bin/bash
-cmake -S. -Bbuild
-cd build
+cmake -S. -B/tmp/build
+cd /tmp/build
 make -j$(nproc)
-cd ..
-./build/m3
+cd -
+/tmp/build/m3

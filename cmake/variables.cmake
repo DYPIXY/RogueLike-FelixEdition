@@ -1,11 +1,11 @@
 # ---- Developer mode ----
 
 # Developer mode enables targets and code paths in the CMake scripts that are
-# only relevant for the developer(s) of m3
+# only relevant for the developer(s) of dest
 # Targets necessary to build the project must be provided unconditionally, so
 # consumers can trivially build and package the project
 if(PROJECT_IS_TOP_LEVEL)
-  option(m3_DEVELOPER_MODE "Enable developer mode" OFF)
+  option(dest_DEVELOPER_MODE "Enable developer mode" OFF)
 endif()
 
 # ---- Warning guard ----
@@ -17,12 +17,12 @@ endif()
 set(warning_guard "")
 if(NOT PROJECT_IS_TOP_LEVEL)
   option(
-      m3_INCLUDES_WITH_SYSTEM
-      "Use SYSTEM modifier for m3's includes, disabling warnings"
+      dest_INCLUDES_WITH_SYSTEM
+      "Use SYSTEM modifier for dest's includes, disabling warnings"
       ON
   )
-  mark_as_advanced(m3_INCLUDES_WITH_SYSTEM)
-  if(m3_INCLUDES_WITH_SYSTEM)
+  mark_as_advanced(dest_INCLUDES_WITH_SYSTEM)
+  if(dest_INCLUDES_WITH_SYSTEM)
     set(warning_guard SYSTEM)
   endif()
 endif()

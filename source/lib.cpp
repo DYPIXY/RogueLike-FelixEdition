@@ -1,6 +1,8 @@
 #include "lib.hpp"
 
+#include <fmt/core.h>
+
 library::library()
-    : name {"m3"}
+    : name {fmt::format("{}", "dest")}
 {
 }
