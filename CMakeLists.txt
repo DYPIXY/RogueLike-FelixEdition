@@ -14,16 +14,32 @@ include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
 # ---- Declare library ----
+add_subdirectory(
+  lib/sfml
+  ${PROJECT_SOURCE_DIR}/include
+)
 
 add_library(
     dest_lib OBJECT
-    source/lib.cpp
+    source/Game.cpp
+    source/MapManager.cpp
 )
+
+target_link_libraries(dest_lib
+    PUBLIC
+        SFML::Graphics
+        SFML::Window
+        SFML::System
+)
+
+project(sfml NONE)
+
 
 target_include_directories(
     dest_lib ${warning_guard}
     PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
+    ${PROJECT_SOURCE_DIR}/include
 )
 
 target_compile_features(dest_lib PUBLIC cxx_std_17)

@@ -1,12 +1,7 @@
-#include <iostream>
-#include <string>
+#include "../include/Game.hpp"
 
-#include "lib.hpp"
-
-auto main() -> int
-{
-  auto const lib = library {};
-  auto const message = "Hello from " + lib.name + "!";
-  std::cout << message << '\n';
-  return 0;
+int main() {
+    Game game;
+    game.run();
+    return 0;
 }
