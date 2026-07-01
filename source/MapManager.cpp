@@ -75,10 +75,11 @@ void MapManager::buildDemoLevel(GameMap& map) {
                         int uses, sf::Vector2i pos, int tex) {
         map.items.push_back({t, n, val, uses, true, pos, tex});
     };
-    addItem(ItemType::HealthPotion, "Pocao de Vida",  15,  1, {6,  3}, TEX_POTION);
-    addItem(ItemType::Key,          "Chave",           0,  1, {18, 3}, TEX_KEY);
-    addItem(ItemType::Weapon,       "Espada Curta",    5, -1, {30, 3}, TEX_WEAPON);
-    addItem(ItemType::Shield,       "Escudo",          3, -1, {20,13}, TEX_SHIELD);
+    addItem(ItemType::POTION,             "Pocao de Vida",  15,  1, {6,  3}, TEX_POTION);
+    addItem(ItemType::KEY,                "Chave",           0,  1, {18, 3}, TEX_KEY);
+    addItem(ItemType::ESPADA_CURTA,       "Espada Curta",    5, -1, {30, 3}, TEX_WEAPON);
+    addItem(ItemType::ESPADA_LONGA,       "Espada Longa",    5, -1, {30, 3}, TEX_LONG_SWORD);
+    addItem(ItemType::ESCUDO,             "Escudo",          3, -1, {20,13}, TEX_SHIELD);
 
     // Inimigos
     auto addEnemy = [&](EnemyType et, int gx, int gy,

@@ -98,8 +98,7 @@ void Game::processEvents() {
             if (keyCode == sf::Keyboard::Key::Enter) applyAttrPoint(m_attrChoice);
         }
         if (m_state == GameState::BattleScreen) {
-            if (keyCode == sf::Keyboard::Key::A) resolveBattle(true);
-            if (keyCode == sf::Keyboard::Key::F) resolveBattle(false);
+            resolveBattle(keyCode);
         }
         if (m_state == GameState::GameOver || m_state == GameState::Victory)
             if (keyCode == sf::Keyboard::Key::Enter) { m_state = GameState::MainMenu; m_menuSel = 0; }
@@ -149,7 +148,7 @@ void Game::tryMove(int dx, int dy) {
         auto& tile = m_map.tiles[ny][nx];
         if (tile.type == TileType::Door && tile.solid) {
             auto it = std::find_if(m_player.inventory.begin(), m_player.inventory.end(),
-                [](const Item& i){ return i.type == ItemType::Key && i.uses != 0; });
+                [](const Item& i){ return i.type == ItemType::KEY && i.uses != 0; });
             if (it == m_player.inventory.end()) {
                 m_msg = "Precisa de uma chave!"; m_msgTimer = 2.f; return;
             }
@@ -215,7 +214,7 @@ void Game::interactNPC() {
 
 void Game::usePotion() {
     for (auto& item : m_player.inventory) {
-        if (item.type != ItemType::HealthPotion || item.uses == 0) continue;
+        if (item.type != ItemType::POTION || item.uses == 0) continue;
         m_player.stats.hp = std::min(m_player.stats.hpMax, m_player.stats.hp + item.value);
         if (--item.uses == 0) item.active = false;
         m_msg = "Usou pocao! +" + std::to_string(item.value) + " HP"; m_msgTimer = 2.f;
@@ -275,34 +274,59 @@ void Game::enemyMove(Enemy& e) {
 }
 
 // ─── Combate ──────────────────────────────────────────────────────────────────
-void Game::startBattle(Enemy& e) {
+void Game::startBattle(Enemy& e) 
+{
     m_battleEnemy = &e;
     const char* names[] = {"Goblin", "Esqueleto", "Troll", "BOSS"};
-    m_battleLog = "Combate com " + std::string(names[static_cast<int>(e.type)]);
+    m_battleLog = "\nCombate com " + std::string(names[static_cast<int>(e.type)]);
     m_state = GameState::BattleScreen;
 }
 
-void Game::resolveBattle(bool playerAttacks) {
+void Game::resolveBattle(sf::Keyboard::Key key) {
     if (!m_battleEnemy || !m_battleEnemy->alive) { m_state = GameState::Playing; return; }
 
-    if (playerAttacks) {
-        int dmg = calcDamage(m_player.stats, m_battleEnemy->stats);
-        m_battleEnemy->stats.hp -= dmg;
-        m_battleLog = "Voce causou " + std::to_string(dmg) + " dano!";
-        if (m_battleEnemy->stats.hp <= 0) {
-            m_battleEnemy->alive = false;
-            grantXP(m_battleEnemy->xpReward);
-            m_player.score += m_battleEnemy->xpReward * 5;
-            m_battleLog += " Inimigo derrotado!";
-            m_battleEnemy = nullptr;
-            m_state = GameState::Playing;
-            return;
+    int def = 0;
+    switch (key)
+    {
+        case sf::Keyboard::Key::A:
+        {
+            int dmg = calcDamage(m_player.stats, m_battleEnemy->stats);
+            m_battleEnemy->stats.hp -= dmg;
+            m_battleLog = "\nVoce causou " + std::to_string(dmg) + " dano!";
+            if (m_battleEnemy->stats.hp <= 0) {
+                m_battleEnemy->alive = false;
+                grantXP(m_battleEnemy->xpReward);
+                m_player.score += m_battleEnemy->xpReward * 5;
+                m_battleLog += "\nInimigo derrotado!";
+                m_battleEnemy = nullptr;
+                m_state = GameState::Playing;
+                return;
+            }
+            break;
+        }
+        case sf::Keyboard::Key::D:
+        {
+            def = 3;
+            break;
+        }
+        case sf::Keyboard::Key::F:
+        {
+            if (std::rand() % 100 > m_player.stats.escapeChance)
+            {
+                m_globalLog += "\nFugiu do inimigo!";
+                m_state = GameState::Playing;
+            }
+            else 
+            {
+                m_battleLog += "\nTentativa de fugir falhou!";
+            }
+            break;
         }
     }
 
     // Contra-ataque do inimigo
     if (m_battleEnemy) {
-        int dmg = calcDamage(m_battleEnemy->stats, m_player.stats);
+        int dmg = calcDamage(m_battleEnemy->stats, m_player.stats, def);
         m_player.stats.hp -= dmg;
         m_battleLog += "\nInimigo causou " + std::to_string(dmg) + " dano!";
         if (m_player.stats.hp <= 0) { m_player.alive = false; m_state = GameState::GameOver; }
@@ -310,9 +334,10 @@ void Game::resolveBattle(bool playerAttacks) {
 }
 
 // Esquiva → crítico → dano base
-int Game::calcDamage(const Stats& atk, const Stats& def) {
+int Game::calcDamage(const Stats& atk, const Stats& def, int extraArmor) 
+{
     if (std::rand() % 100 < def.dodge) return 0;
-    int dmg = std::max(1, atk.str - def.armor);
+    int dmg = std::max(1, atk.str - (def.armor + extraArmor));
     if (std::rand() % 100 < BASE_CRIT) dmg *= 2;
     return dmg;
 }
@@ -420,7 +445,7 @@ void Game::drawMenu() {
 void Game::drawPlaying() {
     m_window.setView(m_gameView);
     m_mapMgr.draw(m_window, m_map, m_sheet);
-
+    
     for (auto& item : m_map.items)
         if (item.active && m_map.tiles[item.gridPos.y][item.gridPos.x].visible)
             drawEntity(item.texIndex, MapManager::toPixel(item.gridPos));
@@ -443,6 +468,14 @@ void Game::drawPlaying() {
     if (m_msgTimer > 0.f) {
         m_window.setView(m_hudView);
         drawText(m_msg, 24, sf::Color::Yellow, 20, static_cast<float>(WINDOW_H - HUD_HEIGHT - 40));
+    }
+
+
+    drawText(m_globalLog, 22, sf::Color::White, 5.f, 20.f);
+    if (m_textClock.getElapsedTime().asSeconds() >= 6.0f)
+    {
+        m_textClock.reset();
+        m_globalLog.clear(); // Stop drawing after 3 seconds
     }
 }
 
@@ -486,7 +519,7 @@ void Game::drawBattle() {
     m_window.draw(panel);
 
     drawText("== BATALHA ==", 30, sf::Color::Yellow, 530, 215);
-    drawText(m_battleLog,     22, sf::Color::White,  360, 270);
+    drawText(m_battleLog,     22, sf::Color::White,  530, 510);
 
     if (m_battleEnemy) {
         drawText("Inimigo HP: " + std::to_string(m_battleEnemy->stats.hp)
@@ -494,7 +527,7 @@ void Game::drawBattle() {
         drawText("Seu HP: " + std::to_string(m_player.stats.hp)
                + "/" + std::to_string(m_player.stats.hpMax),       22, sf::Color::Green, 360, 340);
     }
-    drawText("[A] Atacar     [F] Defender (contra-ataque reduzido)", 22, sf::Color::Cyan, 360, 420);
+    drawText("[A] Atacar     [D] Defender     [F] Fugir", 22, sf::Color::Cyan, 360, 420);
 }
 
 // ─── drawLevelUp ──────────────────────────────────────────────────────────────

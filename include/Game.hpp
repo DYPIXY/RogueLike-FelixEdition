@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
 #include "Types.hpp"
 #include "MapManager.hpp"
 
@@ -16,6 +17,8 @@ private:
     Player m_player;
     Enemy* m_battleEnemy;
     std::string m_battleLog;
+    std::string m_globalLog;
+    sf::Clock m_textClock;
     int m_attrChoice = 0;
     int m_menuSel = 0;
     std::string m_msg;
@@ -55,8 +58,8 @@ private:
 
     // Combate
     void startBattle(Enemy& e);
-    void resolveBattle(bool playerAttacks);
-    int  calcDamage(const Stats& atk, const Stats& def);
+    void resolveBattle(sf::Keyboard::Key key);
+    int  calcDamage(const Stats& atk, const Stats& def, int extraArmor = 0);
 
     // Progressão
     void grantXP(int amount);

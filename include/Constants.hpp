@@ -38,3 +38,4 @@ constexpr int TEX_KEY    = 17;
 constexpr int TEX_WEAPON = 18;
 constexpr int TEX_SHIELD = 19;
 constexpr int TEX_GOLD   = 20;
+constexpr int TEX_LONG_SWORD = 21;

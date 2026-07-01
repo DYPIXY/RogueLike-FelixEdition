@@ -6,7 +6,7 @@
 
 //enums
 enum class TileType  { Floor, Wall, Door, Trap, StairsDown, StairsUp, Chest };
-enum class ItemType  { HealthPotion, Key, Weapon, Shield, PowerUp };
+enum class ItemType  { POTION, KEY, ESPADA_CURTA, ESCUDO, POWERUP, ESPADA_LONGA };
 enum class EnemyType { Goblin, Skeleton, Troll, Boss };
 enum class GameState { MainMenu, Playing, BattleScreen, LevelUp, GameOver, Victory };
 
@@ -25,10 +25,12 @@ struct Stats {
     int speed  = 200;           // px/s (jogador) ou tiles/s (inimigos)
     int xp = 0, xpNext = 10;
     int level = 1, attrPts = 0; // pontos a distribuir ao subir de nível
+    int escapeChance = 40;
+
 };
 
 struct Item {
-    ItemType     type    = ItemType::HealthPotion;
+    ItemType     type    = ItemType::POTION;
     std::string  name    = "Potion";
     int          value   = 10;  // cura, bônus de dano…
     int          uses    = 1;   // -1 = infinito
